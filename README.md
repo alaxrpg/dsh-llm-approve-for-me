@@ -20,7 +20,7 @@
 dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 ```
 
-重启 DSH Web 后，在权限选择器中选择 **LLM Approve For Me**。包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设并挂载插件；不要再手动重复插入同一个插件实例。
+重启 DSH Web 后，在权限选择器中选择 **✦ LLM 替我审批**。前置的 `✦` 让它在下拉列表中与普通沙箱预设清晰区分；交互语义与 Codex 的“替我审批”相近：模型审核每次权限升级，但不会获得完全访问权限。包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设并挂载插件；不要再手动重复插入同一个插件实例。
 
 ## 配置
 

@@ -4,11 +4,17 @@ import { describe, it } from 'node:test'
 import { buildReviewerPrompt, inject, name, parseVerdict } from './index.js'
 
 const source = readFileSync(new URL('./index.js', import.meta.url), 'utf8')
+const bundlePatch = readFileSync(new URL('./cordis.patch.yml', import.meta.url), 'utf8')
 
 describe('dsh-llm-approve-for-me', () => {
   it('exports the DSH plugin face', () => {
     assert.equal(name, 'llm-approve-for-me')
     assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools'])
+  })
+
+  it('exposes an icon-prefixed Chinese approval preset', () => {
+    assert.match(bundlePatch, /name: ✦ LLM 替我审批/)
+    assert.match(bundlePatch, /无法裁决时询问你/)
   })
 
   it('accepts only the three structured LLM outcomes', () => {
