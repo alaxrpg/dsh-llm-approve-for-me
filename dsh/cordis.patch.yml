@@ -1,0 +1,22 @@
+# 安装包时会自动合并：为 DSH 权限下拉框增加纯 LLM 审核预设。
+- id: permission
+  config:
+    presets:
+      read-only:
+        sandbox: read-only
+        approval: ask
+      workspace-write:
+        sandbox: workspace-write
+        approval: ask
+      llm-approve-for-me:
+        sandbox: workspace-write
+        approval: ask
+        name: LLM Approve For Me
+        description: Every sandbox escalation is decided by the configured reviewer LLM.
+      danger-full-access:
+        sandbox: danger-full-access
+        approval: never
+
+- insert:
+    - id: llm-approve-for-me
+      name: dsh-llm-approve-for-me
