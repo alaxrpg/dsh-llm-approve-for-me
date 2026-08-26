@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
-import { buildReviewerPrompt, createApprovalRecords, inject, name, parseVerdict, sanitizeSettings } from './index.js'
+import { buildReviewerPrompt, collectReviewerResponse, createApprovalRecords, inject, name, parseReviewerText, parseVerdict, sanitizeSettings } from './index.js'
 
 const source = readFileSync(new URL('./index.js', import.meta.url), 'utf8')
 const clientSource = readFileSync(new URL('./client.js', import.meta.url), 'utf8')
@@ -11,7 +11,7 @@ const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url),
 describe('dsh-llm-approve-for-me', () => {
   it('exports the DSH plugin face', () => {
     assert.equal(name, 'llm-approve-for-me')
-    assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools', 'webServer'])
+    assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'llm', 'tools', 'webServer'])
   })
 
   it('exposes an English approval preset with a real client-side SVG icon', () => {
@@ -43,12 +43,27 @@ describe('dsh-llm-approve-for-me', () => {
     assert.deepEqual(records.list('two').map((row) => row.id), ['2'])
   })
 
-  it('accepts only the three structured LLM outcomes', () => {
+  it('accepts only strict JSON with the three reviewer outcomes', () => {
     assert.deepEqual(parseVerdict({ decision: 'allow', rationale: 'Requested test run.' }), { decision: 'allow', rationale: 'Requested test run.' })
     assert.deepEqual(parseVerdict({ decision: 'deny' }), { decision: 'deny' })
-    assert.deepEqual(parseVerdict({ decision: 'ask' }), { decision: 'ask' })
+    assert.deepEqual(parseReviewerText('{"decision":"ask"}'), { decision: 'ask' })
     assert.equal(parseVerdict({ decision: 'allow', extra: true }), undefined)
     assert.equal(parseVerdict({ decision: 'maybe' }), undefined)
+    assert.equal(parseReviewerText('```json\n{"decision":"allow"}\n```'), undefined)
+    assert.equal(parseReviewerText('Decision: {"decision":"allow"}'), undefined)
+  })
+
+  it('assembles streamed reviewer JSON and detects forbidden tool calls', async () => {
+    async function* chunks() {
+      yield { type: 'text-delta', index: 0, text: '{"decision":' }
+      yield { type: 'text-delta', index: 0, text: '"allow"}' }
+      yield { type: 'tool-call-delta', index: 1, id: 'call-1', name: 'bash', argumentsDelta: '{}' }
+      yield { type: 'finish', reason: { kind: 'tool-calls' } }
+    }
+    const response = await collectReviewerResponse(chunks())
+    assert.equal(response.text, '{"decision":"allow"}')
+    assert.equal(response.emittedToolCall, true)
+    assert.deepEqual(response.finish, { kind: 'tool-calls' })
   })
 
   it('marks the command request as untrusted model evidence', () => {
@@ -74,20 +89,20 @@ describe('dsh-llm-approve-for-me', () => {
 
   it('contains no rule engine, command matching, or hard-coded command decisions', () => {
     assert.doesNotMatch(source, /commandPrefixes|denylist|\bregex\b|high-risk|startsWith\(/i)
-    assert.match(source, /ctx\.subagents\.start/)
-    assert.match(source, /toolFilter: REVIEWER_ROLE\.toolFilter/)
+    assert.doesNotMatch(source, /ctx\.subagents\.start/)
+    assert.match(source, /ctx\.llm\.stream/)
     assert.match(source, /verdict\?\.decision === 'allow'/)
     assert.match(source, /verdict\?\.decision === 'deny'/)
   })
 
   it('normalizes reviewer settings with clamped ranges and inherit-by-default model routing', () => {
-    assert.deepEqual(sanitizeSettings({}), { provider: '', model: '', timeoutMs: 300_000, maxTokens: 16_384, minimalContext: true })
+    assert.deepEqual(sanitizeSettings({}), { provider: '', model: '', timeoutMs: 300_000, maxTokens: 16_384 })
     assert.deepEqual(sanitizeSettings(null), sanitizeSettings({}))
     assert.equal(sanitizeSettings({ timeoutMs: 5 }).timeoutMs, 1_000)
     assert.equal(sanitizeSettings({ timeoutMs: 9_999_999 }).timeoutMs, 600_000)
     assert.equal(sanitizeSettings({ maxTokens: 1 }).maxTokens, 256)
     assert.equal(sanitizeSettings({ maxTokens: 999_999 }).maxTokens, 65_536)
-    assert.equal(sanitizeSettings({ minimalContext: false }).minimalContext, false)
+    assert.equal('minimalContext' in sanitizeSettings({ minimalContext: false }), false)
     assert.equal(sanitizeSettings({ provider: '  zai-coding-cn  ' }).provider, 'zai-coding-cn')
     assert.equal(sanitizeSettings({ timeoutMs: 'fast', maxTokens: null }).timeoutMs, 300_000)
   })
@@ -98,7 +113,7 @@ describe('dsh-llm-approve-for-me', () => {
     assert.match(source, /loadSettingsFile\(\) \?\? sanitizeSettings\(config\?\.reviewer \?\? \{\}\)/)
     assert.match(clientSource, /SETTINGS_ROUTE/)
     assert.match(clientSource, /method: 'PUT'/)
-    assert.match(clientSource, /最小上下文/)
+    assert.match(clientSource, /无工具、无会话的独立 LLM 请求/)
   })
 
   it('renders structured bilingual approval records with verdict badges', () => {
@@ -119,17 +134,19 @@ describe('dsh-llm-approve-for-me', () => {
     assert.match(clientSource, /共 \$\{state\.records\.length\} 条记录/)
   })
 
-  it('runs a dedicated minimal-context reviewer subagent', () => {
+  it('runs the built-in reviewer as an isolated LLM call without a subagent session', () => {
     assert.match(source, /REVIEWER_PERSONA_MARK = 'sole reviewer for exactly one DeepSeek Harness sandbox-permission escalation'/)
-    assert.match(source, /agent\/pre-step/)
-    assert.match(source, /source\?\.kind !== 'agent-instructions'/)
+    assert.match(source, /source: \{ kind: 'plugin', plugin: name \}/)
+    assert.match(source, /system: reviewPrompt\.persona/)
     assert.match(source, /maxTokens: route\.maxTokens/)
-    assert.doesNotMatch(source, /maxTokens: 512/)
+    assert.doesNotMatch(source, /agent\/pre-step/)
+    assert.doesNotMatch(source, /subagents/)
   })
 
   it('records a concrete failure reason when the reviewer produces no verdict', () => {
     assert.match(source, /timed out after \$\{route\.timeoutMs\}ms/)
-    assert.match(source, /stopped before finishing \(stop reason: \$\{result\.stopReason\}\)/)
+    assert.match(source, /reached its output-token limit/)
+    assert.match(source, /attempted a tool call/)
     assert.match(source, /describeError\(error\)/)
     assert.match(source, /outcome\?\.error \|\| 'The AI reviewer did not return a valid decision\.'/)
   })

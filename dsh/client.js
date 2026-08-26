@@ -127,7 +127,6 @@ window.__ModuleLoader__.load({
           provider: form.provider, model: form.model,
           timeoutMs: Math.round(Number(form.timeoutSeconds) * 1000),
           maxTokens: Math.round(Number(form.maxTokens)),
-          minimalContext: form.minimalContext !== false,
         }) })
           .then(async (response) => {
             const body = await response.json()
@@ -154,9 +153,7 @@ window.__ModuleLoader__.load({
         React.createElement('div', { className: 'dsh-ai-approval-field' },
           React.createElement('label', { className: 'dsh-ai-approval-label' }, `输出预算（tokens，${tokenBounds[0]}\u2013${tokenBounds[1]}，含推理过程）`),
           React.createElement('input', { className: 'dsh-ai-approval-input', type: 'number', min: tokenBounds[0], max: tokenBounds[1], value: form.maxTokens, onChange: update('maxTokens') })),
-        React.createElement('label', { className: 'dsh-ai-approval-check' },
-          React.createElement('input', { type: 'checkbox', checked: form.minimalContext !== false, onChange: update('minimalContext') }),
-          '最小上下文 \u2014 审查时不注入 AGENTS.md/CLAUDE.md 工作区指令'),
+        React.createElement('div', { className: 'dsh-ai-approval-hint' }, '审查使用无工具、无会话的独立 LLM 请求；不会创建子代理，也不注入 AGENTS.md/CLAUDE.md。'),
         React.createElement('div', { className: 'dsh-ai-approval-actions' },
           React.createElement('button', { type: 'button', className: 'dsh-ai-approval-save', disabled: state.saving, onClick: save }, state.saving ? '保存中…' : '保存'),
           state.saved && React.createElement('span', { className: 'dsh-ai-approval-saved' }, '已保存 \u2014 下次审查生效'),
