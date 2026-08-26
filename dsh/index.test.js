@@ -16,6 +16,7 @@ describe('dsh-llm-approve-for-me', () => {
 
   it('exposes an English approval preset with a real client-side SVG icon', () => {
     assert.match(bundlePatch, /name: AI Approval/)
+    assert.match(bundlePatch, /defaultPreset: llm-approve-for-me/)
     assert.doesNotMatch(bundlePatch, /✦/)
     assert.match(bundlePatch, /ask you when it cannot decide/)
     assert.equal(pkg.exports['./client'], './dsh/client.js')

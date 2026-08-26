@@ -21,7 +21,7 @@
 dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 ```
 
-重启 DSH Web 后，在权限选择器中选择 **AI Approval**。点击会话顶部的 **AI Approval** 可切换查看审批历史（History）与审查设置（Settings）。包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设并挂载插件；不要再手动重复插入同一个插件实例。
+重启 DSH Web 后，包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设、挂载插件，并把 **AI Approval** 设为新会话的默认预设（你仍可在设置页显式覆盖为其他预设；已存在的会话保留各自当前的预设）。点击会话顶部的 **AI Approval** 可切换查看审批历史（History）与审查设置（Settings）；不要再手动重复插入同一个插件实例。
 
 ## 可视化设置（v0.4.0+）
 

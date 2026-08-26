@@ -1,6 +1,8 @@
 # 安装包时会自动合并：为 DSH 权限下拉框增加纯 LLM 审核预设。
 - id: permission
   config:
+    # 本插件环境下的新会话默认预设（用户可在设置里显式覆盖）。
+    defaultPreset: llm-approve-for-me
     presets:
       read-only:
         sandbox: read-only
