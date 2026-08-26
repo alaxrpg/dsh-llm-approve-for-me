@@ -1,14 +1,15 @@
 # dsh-llm-approve-for-me
 
-一个 DeepSeek Harness（DSH）插件：当会话选择 **AI Approval** 权限预设时，每一笔有效的 Shell 或 PowerShell 沙箱权限升级都由一个专用的无工具审查子代理判定（设计参考 Codex Guardian reviewer：独立模型路由、最小上下文、快速裁决）。
+一个 DeepSeek Harness（DSH）插件：当会话选择 **AI Approval** 权限预设时，每一笔有效的沙箱权限升级（Shell/PowerShell 命令、`write`/`edit` 文件写入等所有带 `sandbox_permissions` 的工具调用）都由一个专用的无工具审查子代理判定（设计参考 Codex Guardian reviewer：**专用内置角色**、独立模型路由、最小上下文、快速裁决）。
 
 ## 设计边界
 
+- **专用审查角色**：审查由插件内置的专用子代理角色（`REVIEWER_ROLE`：无工具、单请求快速裁决、结构化 JSON 输出）执行，不借用环境里任何通用子代理角色模板。
 - 没有命令前缀、正则、白名单、黑名单、危险操作列表或其他规则判断。
 - 不会绕过 DSH 的沙箱：每次允许只返回原生的 `allowed-once` 一次性授权。
 - 审查 LLM 输出是唯一的自动决策来源：`allow` 允许一次、`deny` 拒绝、`ask` 交回原生人工审批。
-- 专用审查子代理：`toolFilter: { allow: [] }` 无工具权限；命令和理由以不可信 JSON 证据提供；persona 要求快速裁决（一句话理由足够）；默认开启最小上下文模式，审查时不注入 AGENTS.md/CLAUDE.md 工作区指令。
-- 每个会话顶部提供 **AI Approval** 面板：History 页按 session 隔离展示最近 100 条审批记录（命令、申请理由、目标权限、审查模型、AI 结论与最终结果）；Settings 页可视化调整审查子代理配置。
+- 覆盖面：`bash`/`pwsh` 传完整命令文本；`write`/`edit` 传文件路径 + 变更摘要（old/new 或 content，截断至 2000 字符防大文件刷屏）；其他带升级参数的工具从参数里尽力提取可审查目标。无法提取审查目标的请求交回人工。
+- 每个会话顶部提供 **AI Approval** 面板：History 页按 session 隔离展示最近 100 条审批记录（请求目标、申请理由、目标权限、审查模型、AI 结论与最终结果）；Settings 页可视化调整审查子代理配置。
 - 缺失审查模型路由、超时、取消、子代理异常或结构化输出无效时，同样交回人工审批；不会默许放行，且记录具体失败原因。
 
 这不是安全产品，也不能替代人工授权、最小权限、备份或隔离。它的含义是把授权判断交给你在 DSH 中配置的 LLM，而不是交给本插件的命令规则。
