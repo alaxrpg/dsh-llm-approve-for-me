@@ -26,7 +26,7 @@ describe('dsh-llm-approve-for-me', () => {
     assert.doesNotMatch(clientSource, /✦/)
     assert.match(clientSource, /conversation\.session\.header\.actions/)
     assert.match(clientSource, /dsh-ai-approval-form/)
-    assert.match(clientSource, /Reviewer provider \(empty = inherit session\)/)
+    assert.match(clientSource, /审查模型 Provider（留空 = 跟随主会话）/)
     assert.match(clientSource, /replaceLegacyCopy/)
     assert.match(clientSource, /LEGACY_DESCRIPTION/)
     assert.match(clientSource, /!button\.classList\.contains\('dsh-ai-approval-trigger'\)/)
@@ -84,7 +84,17 @@ describe('dsh-llm-approve-for-me', () => {
     assert.match(source, /loadSettingsFile\(\) \?\? sanitizeSettings\(config\?\.reviewer \?\? \{\}\)/)
     assert.match(clientSource, /SETTINGS_ROUTE/)
     assert.match(clientSource, /method: 'PUT'/)
-    assert.match(clientSource, /Minimal context/)
+    assert.match(clientSource, /最小上下文/)
+  })
+
+  it('renders structured bilingual approval records with verdict badges', () => {
+    assert.match(clientSource, /VERDICT_LABELS = \{ allow: 'AI 通过', deny: 'AI 拒绝', ask: '询问用户', reviewing: '审查中' \}/)
+    assert.match(clientSource, /dsh-ai-approval-badge-allow/)
+    assert.match(clientSource, /dsh-ai-approval-badge-deny/)
+    assert.match(clientSource, /dsh-ai-approval-badge-ask/)
+    assert.match(clientSource, /dsh-ai-approval-tags/)
+    assert.match(clientSource, /dsh-ai-approval-toggle/)
+    assert.match(clientSource, /本会话暂无 AI 审批记录/)
   })
 
   it('runs a dedicated minimal-context reviewer subagent', () => {

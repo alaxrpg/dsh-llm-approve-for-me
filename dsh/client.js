@@ -49,7 +49,12 @@ window.__ModuleLoader__.load({
         .dsh-ai-approval-panel{z-index:110;box-sizing:border-box;position:absolute;top:calc(100% + 6px);left:0;width:420px;max-width:min(420px,calc(100vw - 32px));max-height:min(520px,calc(100vh - 140px));overflow:auto;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-specific-menu);box-shadow:var(--dsw-shadow-lv3);padding:12px}.dsh-ai-approval-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;color:var(--dsw-alias-label-primary);font-size:13px;font-weight:600}.dsh-ai-approval-subtitle{color:var(--dsw-alias-label-tertiary);font-size:11px;font-weight:400}
         .dsh-ai-approval-tab{display:inline-flex;align-items:center;gap:4px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:transparent;border:0;border-radius:6px;padding:3px 6px;font-size:12px}.dsh-ai-approval-tab:hover{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-ai-approval-tab-active{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}
         .dsh-ai-approval-empty{color:var(--dsw-alias-label-tertiary);padding:20px 8px;text-align:center;font-size:12px}
-        .dsh-ai-approval-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}.dsh-ai-approval-row{border:1px solid var(--dsw-alias-border-l1);border-radius:9px;padding:9px;background:var(--dsw-alias-bg-base)}.dsh-ai-approval-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--dsw-alias-label-tertiary);font-size:11px}.dsh-ai-approval-result{font-weight:600;text-transform:capitalize}.dsh-ai-approval-command{margin-top:7px;color:var(--dsw-alias-label-primary);font:11px/16px var(--dsw-font-mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:80px;overflow:auto}.dsh-ai-approval-reason{margin-top:6px;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+        .dsh-ai-approval-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}.dsh-ai-approval-row{border:1px solid var(--dsw-alias-border-l1);border-radius:9px;padding:9px;background:var(--dsw-alias-bg-base)}.dsh-ai-approval-rowhead{display:flex;align-items:center;gap:8px;margin-bottom:7px}.dsh-ai-approval-time{margin-left:auto;color:var(--dsw-alias-label-tertiary);font-size:11px;white-space:nowrap}
+        .dsh-ai-approval-badge{display:inline-flex;align-items:center;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;line-height:18px;color:#fff}.dsh-ai-approval-badge-allow{background:var(--dsw-alias-success,#2e7d32)}.dsh-ai-approval-badge-deny{background:var(--dsw-alias-danger,#c0392b)}.dsh-ai-approval-badge-ask{background:var(--dsw-alias-warning,#b26a00)}.dsh-ai-approval-badge-reviewing{background:var(--dsw-alias-label-tertiary,#888)}
+        .dsh-ai-approval-outcome{color:var(--dsw-alias-label-secondary);font-size:11px}
+        .dsh-ai-approval-command{color:var(--dsw-alias-label-primary);font:12px/17px var(--dsw-font-mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:80px;overflow:auto}
+        .dsh-ai-approval-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.dsh-ai-approval-tag{display:inline-flex;align-items:center;border:1px solid var(--dsw-alias-border-l2);border-radius:5px;padding:0 6px;color:var(--dsw-alias-label-tertiary);font-size:10.5px;line-height:17px}.dsh-ai-approval-tag-model{font-family:var(--dsw-font-mono)}
+        .dsh-ai-approval-reason{display:flex;gap:7px;margin-top:6px;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:17px;white-space:pre-wrap;overflow-wrap:anywhere}.dsh-ai-approval-kv{flex:0 0 auto;color:var(--dsw-alias-label-tertiary);font-weight:600}.dsh-ai-approval-toggle{border:0;background:transparent;color:var(--dsw-alias-label-primary);font-size:11px;padding:0 2px;cursor:pointer;text-decoration:underline}.dsh-ai-approval-note{color:var(--dsw-alias-label-tertiary)}
         .dsh-ai-approval-form{display:flex;flex-direction:column;gap:9px}.dsh-ai-approval-field{display:flex;flex-direction:column;gap:4px}.dsh-ai-approval-label{color:var(--dsw-alias-label-secondary);font-size:11px;font-weight:500}.dsh-ai-approval-input{box-sizing:border-box;width:100%;border:1px solid var(--dsw-alias-border-l2);border-radius:7px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-size:12px;padding:5px 8px;outline:none}.dsh-ai-approval-input:focus{border-color:var(--dsw-alias-border-l3)}.dsh-ai-approval-check{display:flex;align-items:center;gap:7px;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;cursor:pointer}.dsh-ai-approval-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-ai-approval-save{border:0;border-radius:7px;background:var(--dsw-alias-interactive-accent,var(--dsw-alias-label-primary));color:var(--dsw-specific-menu,#fff);font-size:12px;font-weight:500;padding:5px 14px;cursor:pointer}.dsh-ai-approval-save:disabled{opacity:.55;cursor:default}.dsh-ai-approval-hint{color:var(--dsh-approval-hint,var(--dsw-alias-label-tertiary));font-size:11px;overflow-wrap:anywhere}.dsh-ai-approval-error{color:var(--dsw-alias-danger,#c0392b);font-size:11px}.dsh-ai-approval-saved{color:var(--dsw-alias-success,#2e7d32);font-size:11px}
       `
       document.head.appendChild(style)
@@ -126,25 +131,58 @@ window.__ModuleLoader__.load({
       const tokenBounds = state.ranges?.maxTokens ?? [256, 65536]
       return React.createElement('div', { className: 'dsh-ai-approval-form' },
         React.createElement('div', { className: 'dsh-ai-approval-field' },
-          React.createElement('label', { className: 'dsh-ai-approval-label' }, 'Reviewer provider (empty = inherit session)'),
-          React.createElement('input', { className: 'dsh-ai-approval-input', value: form.provider || '', placeholder: 'inherit session provider', onChange: update('provider') })),
+          React.createElement('label', { className: 'dsh-ai-approval-label' }, '审查模型 Provider（留空 = 跟随主会话）'),
+          React.createElement('input', { className: 'dsh-ai-approval-input', value: form.provider || '', placeholder: '跟随主会话', onChange: update('provider') })),
         React.createElement('div', { className: 'dsh-ai-approval-field' },
-          React.createElement('label', { className: 'dsh-ai-approval-label' }, 'Reviewer model (empty = inherit session)'),
-          React.createElement('input', { className: 'dsh-ai-approval-input', value: form.model || '', placeholder: 'inherit session model', onChange: update('model') })),
+          React.createElement('label', { className: 'dsh-ai-approval-label' }, '审查模型（留空 = 跟随主会话，推荐快速非推理模型）'),
+          React.createElement('input', { className: 'dsh-ai-approval-input', value: form.model || '', placeholder: '跟随主会话', onChange: update('model') })),
         React.createElement('div', { className: 'dsh-ai-approval-field' },
-          React.createElement('label', { className: 'dsh-ai-approval-label' }, `Timeout (seconds, ${timeoutBounds[0]}\u2013${timeoutBounds[1]})`),
+          React.createElement('label', { className: 'dsh-ai-approval-label' }, `审查超时（秒，${timeoutBounds[0]}\u2013${timeoutBounds[1]}，推理模型思考计入超时）`),
           React.createElement('input', { className: 'dsh-ai-approval-input', type: 'number', min: timeoutBounds[0], max: timeoutBounds[1], value: form.timeoutSeconds, onChange: update('timeoutSeconds') })),
         React.createElement('div', { className: 'dsh-ai-approval-field' },
-          React.createElement('label', { className: 'dsh-ai-approval-label' }, `Max tokens (${tokenBounds[0]}\u2013${tokenBounds[1]}, includes reasoning)`),
+          React.createElement('label', { className: 'dsh-ai-approval-label' }, `输出预算（tokens，${tokenBounds[0]}\u2013${tokenBounds[1]}，含推理过程）`),
           React.createElement('input', { className: 'dsh-ai-approval-input', type: 'number', min: tokenBounds[0], max: tokenBounds[1], value: form.maxTokens, onChange: update('maxTokens') })),
         React.createElement('label', { className: 'dsh-ai-approval-check' },
           React.createElement('input', { type: 'checkbox', checked: form.minimalContext !== false, onChange: update('minimalContext') }),
-          'Minimal context \u2014 skip AGENTS.md/CLAUDE.md injection for the reviewer'),
+          '最小上下文 \u2014 审查时不注入 AGENTS.md/CLAUDE.md 工作区指令'),
         React.createElement('div', { className: 'dsh-ai-approval-actions' },
-          React.createElement('button', { type: 'button', className: 'dsh-ai-approval-save', disabled: state.saving, onClick: save }, state.saving ? 'Saving\u2026' : 'Save'),
-          state.saved && React.createElement('span', { className: 'dsh-ai-approval-saved' }, 'Saved \u2014 applies from the next review'),
+          React.createElement('button', { type: 'button', className: 'dsh-ai-approval-save', disabled: state.saving, onClick: save }, state.saving ? '保存中…' : '保存'),
+          state.saved && React.createElement('span', { className: 'dsh-ai-approval-saved' }, '已保存 \u2014 下次审查生效'),
           state.error && React.createElement('span', { className: 'dsh-ai-approval-error' }, state.error)),
-        React.createElement('div', { className: 'dsh-ai-approval-hint' }, `Settings file: ${state.settingsFile}`))
+        React.createElement('div', { className: 'dsh-ai-approval-hint' }, `设置文件：${state.settingsFile}`))
+    }
+
+    const VERDICT_LABELS = { allow: 'AI 通过', deny: 'AI 拒绝', ask: '询问用户', reviewing: '审查中' }
+    const OUTCOME_LABELS = { 'allowed-once': '已放行一次', rejected: '已拒绝', 'asked-user': '等待/已由用户决定', pending: '进行中' }
+
+    function verdictBadge(record) {
+      const decision = record.decision
+      const known = decision === 'allow' || decision === 'deny' || decision === 'ask' || decision === 'reviewing'
+      return React.createElement('span', { className: `dsh-ai-approval-badge dsh-ai-approval-badge-${known ? decision : 'ask'}` },
+        VERDICT_LABELS[decision] ?? decision)
+    }
+
+    function ApprovalRecordRow({ record }) {
+      const [expanded, setExpanded] = React.useState(false)
+      const longReason = record.justification.length > 90
+      const reasonText = expanded || !longReason ? record.justification : `${record.justification.slice(0, 90)}…`
+      return React.createElement('li', { className: 'dsh-ai-approval-row' },
+        React.createElement('div', { className: 'dsh-ai-approval-rowhead' },
+          verdictBadge(record),
+          React.createElement('span', { className: 'dsh-ai-approval-outcome' }, OUTCOME_LABELS[record.outcome] ?? record.outcome),
+          React.createElement('span', { className: 'dsh-ai-approval-time' }, formatTime(record.requestedAt))),
+        React.createElement('div', { className: 'dsh-ai-approval-command' }, record.command),
+        React.createElement('div', { className: 'dsh-ai-approval-tags' },
+          React.createElement('span', { className: 'dsh-ai-approval-tag' }, record.toolName),
+          React.createElement('span', { className: 'dsh-ai-approval-tag' }, record.requestedSandbox),
+          record.reviewer && React.createElement('span', { className: 'dsh-ai-approval-tag dsh-ai-approval-tag-model' }, record.reviewer)),
+        React.createElement('div', { className: 'dsh-ai-approval-reason' },
+          React.createElement('span', { className: 'dsh-ai-approval-kv' }, '理由'),
+          React.createElement('span', null, reasonText),
+          longReason && React.createElement('button', { type: 'button', className: 'dsh-ai-approval-toggle', onClick: () => setExpanded((value) => !value) }, expanded ? '收起' : '展开')),
+        record.rationale && React.createElement('div', { className: `dsh-ai-approval-reason${record.decision === 'ask' && !record.rationale.startsWith('The AI reviewer') && !record.rationale.includes('：') ? ' dsh-ai-approval-note' : ''}` },
+          React.createElement('span', { className: 'dsh-ai-approval-kv' }, 'AI'),
+          React.createElement('span', null, record.rationale)))
     }
 
     function ApprovalHistory({ sessionId }) {
@@ -162,15 +200,10 @@ window.__ModuleLoader__.load({
         return () => controller.abort()
       }, [sessionId])
 
-      return state.loading ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, 'Loading\u2026') :
-        state.error ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, `Unable to load: ${state.error}`) :
-          state.records.length === 0 ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, 'No AI approval requests in this session.') :
-            React.createElement('ol', { className: 'dsh-ai-approval-list' }, state.records.map((record) => React.createElement('li', { className: 'dsh-ai-approval-row', key: record.id },
-              React.createElement('div', { className: 'dsh-ai-approval-meta' }, React.createElement('span', null, `${record.toolName} \u00b7 ${record.requestedSandbox}${record.reviewer ? ` \u00b7 ${record.reviewer}` : ''}`), React.createElement('span', { className: 'dsh-ai-approval-result' }, `${record.decision} \u00b7 ${record.outcome}`)),
-              React.createElement('div', { className: 'dsh-ai-approval-meta' }, React.createElement('span', null, formatTime(record.requestedAt))),
-              React.createElement('div', { className: 'dsh-ai-approval-command' }, record.command),
-              React.createElement('div', { className: 'dsh-ai-approval-reason' }, `Request: ${record.justification}`),
-              record.rationale && React.createElement('div', { className: 'dsh-ai-approval-reason' }, `AI: ${record.rationale}`))))
+      return state.loading ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, '加载中…') :
+        state.error ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, `加载失败：${state.error}`) :
+          state.records.length === 0 ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, '本会话暂无 AI 审批记录。') :
+            React.createElement('ol', { className: 'dsh-ai-approval-list' }, state.records.map((record) => React.createElement(ApprovalRecordRow, { record, key: record.id })))
     }
 
     function ApprovalPanel({ sessionId }) {
@@ -188,8 +221,8 @@ window.__ModuleLoader__.load({
         React.createElement('button', { type: 'button', className: 'dsh-ai-approval-trigger', 'aria-label': 'AI Approval history', 'aria-expanded': open, onClick: () => setOpen((value) => !value) }, terminalIcon(14), React.createElement('span', null, LABEL)),
         open && React.createElement('section', { className: 'dsh-ai-approval-panel', 'aria-label': 'Current session approval history' },
           React.createElement('div', { className: 'dsh-ai-approval-heading' },
-            React.createElement('span', { className: `dsh-ai-approval-tab${view === 'history' ? ' dsh-ai-approval-tab-active' : ''}`, role: 'button', tabIndex: 0, onClick: () => setView('history') }, 'History'),
-            React.createElement('span', { className: `dsh-ai-approval-tab${view === 'settings' ? ' dsh-ai-approval-tab-active' : ''}`, role: 'button', tabIndex: 0, onClick: () => setView('settings') }, gearIcon(13), ' Settings')),
+            React.createElement('span', { className: `dsh-ai-approval-tab${view === 'history' ? ' dsh-ai-approval-tab-active' : ''}`, role: 'button', tabIndex: 0, onClick: () => setView('history') }, '审批记录'),
+            React.createElement('span', { className: `dsh-ai-approval-tab${view === 'settings' ? ' dsh-ai-approval-tab-active' : ''}`, role: 'button', tabIndex: 0, onClick: () => setView('settings') }, gearIcon(13), ' 审查设置')),
           view === 'settings' ? React.createElement(ApprovalSettings, null) : React.createElement(ApprovalHistory, { sessionId })))
     }
 
