@@ -4,7 +4,9 @@ import { describe, it } from 'node:test'
 import { buildReviewerPrompt, inject, name, parseVerdict } from './index.js'
 
 const source = readFileSync(new URL('./index.js', import.meta.url), 'utf8')
+const clientSource = readFileSync(new URL('./client.js', import.meta.url), 'utf8')
 const bundlePatch = readFileSync(new URL('./cordis.patch.yml', import.meta.url), 'utf8')
+const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
 
 describe('dsh-llm-approve-for-me', () => {
   it('exports the DSH plugin face', () => {
@@ -12,9 +14,16 @@ describe('dsh-llm-approve-for-me', () => {
     assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools'])
   })
 
-  it('exposes an icon-prefixed Chinese approval preset', () => {
-    assert.match(bundlePatch, /name: ✦ LLM 替我审批/)
+  it('exposes a Chinese approval preset with a real client-side SVG icon', () => {
+    assert.match(bundlePatch, /name: LLM 替我审批/)
+    assert.doesNotMatch(bundlePatch, /✦/)
     assert.match(bundlePatch, /无法裁决时询问你/)
+    assert.equal(pkg.exports['./client'], './dsh/client.js')
+    assert.deepEqual(pkg.dsh.client, { platform: 'web' })
+    assert.match(clientSource, /dsh-llm-approval-icon/)
+    assert.match(clientSource, /<svg width="16" height="16"/)
+    assert.match(clientSource, /MutationObserver/)
+    assert.doesNotMatch(clientSource, /✦/)
   })
 
   it('accepts only the three structured LLM outcomes', () => {

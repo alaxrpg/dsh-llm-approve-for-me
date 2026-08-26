@@ -1,11 +1,12 @@
 {
   "name": "dsh-llm-approve-for-me",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LLM-only one-shot sandbox approval reviewer for DeepSeek Harness.",
   "type": "module",
   "main": "./dsh/index.js",
   "exports": {
     ".": "./dsh/index.js",
+    "./client": "./dsh/client.js",
     "./cordis.patch.yml": "./dsh/cordis.patch.yml",
     "./package.json": "./package.json"
   },
@@ -15,7 +16,8 @@
     "check": "node --check dsh/index.js && npm test"
   },
   "dsh": {
-    "bundle": { "patch": "./dsh/cordis.patch.yml" }
+    "bundle": { "patch": "./dsh/cordis.patch.yml" },
+    "client": { "platform": "web" }
   },
   "keywords": ["dsh", "deepseek-harness", "approval", "llm-review", "sandbox"],
   "author": "lizhiyuan",
