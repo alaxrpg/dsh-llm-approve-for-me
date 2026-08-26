@@ -25,7 +25,7 @@ dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 
 ## 配置
 
-默认继承提出当前权限请求的会话的 Provider 与模型。若要固定使用较便宜的专用审查模型，可在 profile 的 `cordis.patch.yml` 中为插件增加配置：
+默认继承提出当前权限请求的会话的 Provider 与模型（即主会话用什么模型，审核就用什么模型；推荐搭配非推理的快速模型以获得秒级结论）。若要固定使用较便宜的专用审查模型，可在 profile 的 `cordis.patch.yml` 中为插件增加配置：
 
 ```yaml
 - insert:
@@ -35,10 +35,10 @@ dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
         reviewer:
           provider: your-review-provider
           model: your-review-model
-          timeoutMs: 30000
+          timeoutMs: 120000
 ```
 
-`provider` 与 `model` 必须同时配置；未配置时继承当前会话。`timeoutMs` 可为 1000–120000 毫秒，默认 30000。
+`provider` 与 `model` 必须同时配置；未配置时继承当前会话。`timeoutMs` 可为 1000–300000 毫秒，默认 120000——推理型审查模型的思考时间计入超时，深度思考模型建议保持默认或调高。审查子代理的输出预算为 4096 tokens（含推理过程）。
 
 ## 审核协议
 
@@ -48,7 +48,7 @@ dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 {"decision":"allow","rationale":"原因（可选）"}
 ```
 
-`decision` 只能是 `allow`、`deny` 或 `ask`。任何额外字段、未知值或非结构化响应都会回落到原生人工审批。
+`decision` 只能是 `allow`、`deny` 或 `ask`。任何额外字段、未知值或非结构化响应都会回落到原生人工审批。审核超时（默认 120 秒）、取消、子代理异常或输出无效时，具体的失败原因会写入该条审批记录的 AI 说明，方便区分"审不了"和"没审完"。
 
 ## 本地验证与打包
 

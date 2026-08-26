@@ -63,4 +63,20 @@ describe('dsh-llm-approve-for-me', () => {
     assert.match(source, /verdict\?\.decision === 'allow'/)
     assert.match(source, /verdict\?\.decision === 'deny'/)
   })
+
+  it('relaxes reviewer limits and keeps inheriting the session model by default', () => {
+    assert.match(source, /DEFAULT_TIMEOUT_MS = 120_000/)
+    assert.match(source, /MAX_TIMEOUT_MS = 300_000/)
+    assert.match(source, /timeoutMs <= MAX_TIMEOUT_MS/)
+    assert.match(source, /REVIEWER_MAX_TOKENS = 4_096/)
+    assert.match(source, /maxTokens: REVIEWER_MAX_TOKENS/)
+    assert.doesNotMatch(source, /maxTokens: 512/)
+  })
+
+  it('records a concrete failure reason when the reviewer produces no verdict', () => {
+    assert.match(source, /timed out after \$\{route\.timeoutMs\}ms/)
+    assert.match(source, /stopped before finishing \(stop reason: \$\{result\.stopReason\}\)/)
+    assert.match(source, /describeError\(error\)/)
+    assert.match(source, /outcome\?\.error \|\| 'The AI reviewer did not return a valid decision\.'/)
+  })
 })

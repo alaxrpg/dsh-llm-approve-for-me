@@ -4,7 +4,9 @@ export const name = 'llm-approve-for-me'
 export const inject = ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools', 'webServer']
 
 const PRESET = 'llm-approve-for-me'
-const DEFAULT_TIMEOUT_MS = 30_000
+const DEFAULT_TIMEOUT_MS = 120_000
+const MAX_TIMEOUT_MS = 300_000
+const REVIEWER_MAX_TOKENS = 4_096
 const MAX_COMMAND_CHARS = 16_000
 const MAX_JUSTIFICATION_CHARS = 4_000
 const MAX_RECORDS_PER_SESSION = 100
@@ -28,7 +30,7 @@ function reviewerConfig(config, agent) {
   const header = agent.session.requestHeader?.()?.config ?? {}
   const provider = typeof reviewer.provider === 'string' && reviewer.provider ? reviewer.provider : header.provider
   const model = typeof reviewer.model === 'string' && reviewer.model ? reviewer.model : header.model
-  const timeoutMs = Number.isInteger(reviewer.timeoutMs) && reviewer.timeoutMs >= 1_000 && reviewer.timeoutMs <= 120_000
+  const timeoutMs = Number.isInteger(reviewer.timeoutMs) && reviewer.timeoutMs >= 1_000 && reviewer.timeoutMs <= MAX_TIMEOUT_MS
     ? reviewer.timeoutMs
     : DEFAULT_TIMEOUT_MS
   return { provider, model, timeoutMs }
@@ -126,9 +128,14 @@ function associatedEscalation(ctx, execution, request) {
   return widening ? { command, justification, requested } : undefined
 }
 
+function describeError(error) {
+  const text = String(error?.message ?? error ?? '').replace(/\s+/g, ' ').trim()
+  return text ? text.slice(0, 300) : 'unknown error'
+}
+
 async function review(ctx, request, escalation, config, lifetime) {
   const route = reviewerConfig(config, request.agent)
-  if (!route.provider || !route.model) return undefined
+  if (!route.provider || !route.model) return { error: 'No reviewer model route: configure reviewer.provider and reviewer.model, or run from a session with a model configured.' }
   const timeout = new AbortController()
   const timer = setTimeout(() => timeout.abort(new Error('LLM approval review timed out')), route.timeoutMs)
   const signal = AbortSignal.any([timeout.signal, lifetime, ...(request.signal ? [request.signal] : [])])
@@ -141,14 +148,19 @@ async function review(ctx, request, escalation, config, lifetime) {
       signal,
       persona: reviewPrompt.persona,
       prompt: [{ type: 'text', text: reviewPrompt.prompt }],
-      agentOptions: { provider: route.provider, model: route.model, maxTokens: 512, llmApprovalReviewer: true },
+      agentOptions: { provider: route.provider, model: route.model, maxTokens: REVIEWER_MAX_TOKENS, llmApprovalReviewer: true },
       toolFilter: { allow: [] },
       outputSchema: OUTPUT_SCHEMA,
     })
     const result = await run.result
-    return result.stopReason === 'completed' ? parseVerdict(result.structured) : undefined
-  } catch {
-    return undefined
+    if (result.stopReason !== 'completed') return { error: `The AI reviewer stopped before finishing (stop reason: ${result.stopReason}).` }
+    const verdict = parseVerdict(result.structured)
+    return verdict ? { verdict } : { error: 'The AI reviewer did not return a valid decision.' }
+  } catch (error) {
+    if (timeout.signal.aborted) return { error: `The AI reviewer timed out after ${route.timeoutMs}ms; raise reviewer.timeoutMs or point the reviewer at a faster model.` }
+    if (lifetime.aborted) return { error: 'The AI reviewer was cancelled because the plugin was disposed.' }
+    if (request.signal?.aborted) return { error: 'The AI reviewer was cancelled together with the approval request.' }
+    return { error: `The AI reviewer failed: ${describeError(error)}` }
   } finally {
     clearTimeout(timer)
     await run?.dispose?.().catch(() => {})
@@ -179,9 +191,10 @@ export function apply(ctx, config = {}) {
     })
     const pending = review(ctx, request, escalation, config, lifetime.signal)
     active.add(pending)
-    const verdict = await pending.finally(() => active.delete(pending))
+    const outcome = await pending.finally(() => active.delete(pending))
+    const verdict = outcome?.verdict
     record.decision = verdict?.decision ?? 'ask'
-    record.rationale = verdict?.rationale ?? (verdict ? '' : 'The AI reviewer did not return a valid decision.')
+    record.rationale = verdict?.rationale ?? (verdict ? '' : (outcome?.error || 'The AI reviewer did not return a valid decision.'))
     record.decidedAt = new Date().toISOString()
     if (verdict?.decision === 'allow') {
       record.outcome = 'allowed-once'
