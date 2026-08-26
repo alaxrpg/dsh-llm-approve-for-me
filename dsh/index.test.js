@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
-import { buildReviewerPrompt, inject, name, parseVerdict } from './index.js'
+import { buildReviewerPrompt, createApprovalRecords, inject, name, parseVerdict } from './index.js'
 
 const source = readFileSync(new URL('./index.js', import.meta.url), 'utf8')
 const clientSource = readFileSync(new URL('./client.js', import.meta.url), 'utf8')
@@ -11,19 +11,31 @@ const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url),
 describe('dsh-llm-approve-for-me', () => {
   it('exports the DSH plugin face', () => {
     assert.equal(name, 'llm-approve-for-me')
-    assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools'])
+    assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools', 'webServer'])
   })
 
-  it('exposes a Chinese approval preset with a real client-side SVG icon', () => {
-    assert.match(bundlePatch, /name: LLM 替我审批/)
+  it('exposes an English approval preset with a real client-side SVG icon', () => {
+    assert.match(bundlePatch, /name: AI Approval/)
     assert.doesNotMatch(bundlePatch, /✦/)
-    assert.match(bundlePatch, /无法裁决时询问你/)
+    assert.match(bundlePatch, /ask you when it cannot decide/)
     assert.equal(pkg.exports['./client'], './dsh/client.js')
     assert.deepEqual(pkg.dsh.client, { platform: 'web' })
     assert.match(clientSource, /dsh-llm-approval-icon/)
     assert.match(clientSource, /<svg width="16" height="16"/)
     assert.match(clientSource, /MutationObserver/)
     assert.doesNotMatch(clientSource, /✦/)
+    assert.match(clientSource, /conversation\.session\.header\.actions/)
+    assert.match(clientSource, /Current session approval history/)
+  })
+
+  it('keeps bounded approval records isolated by session', () => {
+    const records = createApprovalRecords(2)
+    records.add('one', { id: '1' })
+    records.add('two', { id: '2' })
+    records.add('one', { id: '3' })
+    records.add('one', { id: '4' })
+    assert.deepEqual(records.list('one').map((row) => row.id), ['4', '3'])
+    assert.deepEqual(records.list('two').map((row) => row.id), ['2'])
   })
 
   it('accepts only the three structured LLM outcomes', () => {

@@ -1,12 +1,14 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 
 export const name = 'llm-approve-for-me'
-export const inject = ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools']
+export const inject = ['approval', 'permissionPresets', 'sandboxPolicy', 'subagents', 'tools', 'webServer']
 
 const PRESET = 'llm-approve-for-me'
 const DEFAULT_TIMEOUT_MS = 30_000
 const MAX_COMMAND_CHARS = 16_000
 const MAX_JUSTIFICATION_CHARS = 4_000
+const MAX_RECORDS_PER_SESSION = 100
+const RECORDS_ROUTE = '/llm-approve-for-me/records'
 const OUTPUT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -35,6 +37,55 @@ function reviewerConfig(config, agent) {
 function truncate(value, maximum) {
   const text = String(value ?? '')
   return text.length <= maximum ? text : `${text.slice(0, maximum - 14)}\n[TRUNCATED]`
+}
+
+export function createApprovalRecords(limit = MAX_RECORDS_PER_SESSION) {
+  const sessions = new Map()
+  return {
+    add(sessionId, record) {
+      const rows = sessions.get(sessionId) ?? []
+      rows.push(record)
+      if (rows.length > limit) rows.splice(0, rows.length - limit)
+      sessions.set(sessionId, rows)
+      return record
+    },
+    list(sessionId) {
+      return [...(sessions.get(sessionId) ?? [])].reverse().map((row) => ({ ...row }))
+    },
+  }
+}
+
+function sameOrigin(req) {
+  const origin = req.headers.origin
+  if (!origin) return true
+  try {
+    const url = new URL(origin)
+    return url.host === req.headers.host
+  } catch {
+    return false
+  }
+}
+
+function sendJson(res, status, value) {
+  res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
+  res.end(JSON.stringify(value))
+}
+
+function registerRecordsRoute(ctx, records) {
+  if (!ctx.webServer?.register) return undefined
+  return ctx.webServer.register({
+    name: 'llm-approve-for-me-records',
+    kind: 'exact',
+    path: RECORDS_ROUTE,
+    handler: async (req, res) => {
+      if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' })
+      if (!sameOrigin(req)) return sendJson(res, 403, { error: 'Cross-origin request rejected' })
+      const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`)
+      const sessionId = url.searchParams.get('sessionId')
+      if (!sessionId || sessionId.length > 200) return sendJson(res, 400, { error: 'A valid sessionId is required' })
+      return sendJson(res, 200, { sessionId, records: records.list(sessionId) })
+    },
+  })
 }
 
 export function parseVerdict(value) {
@@ -106,24 +157,48 @@ async function review(ctx, request, escalation, config, lifetime) {
 
 export function apply(ctx, config = {}) {
   const executions = new AsyncLocalStorage()
+  const records = createApprovalRecords()
   const lifetime = new AbortController()
   const active = new Set()
+  const disposeRoute = registerRecordsRoute(ctx, records)
   const disposeExecution = ctx.on('tools/execute', (execution, next) => executions.run(execution, next), { prepend: true })
   const disposeApproval = ctx.on('approval/request', async (request, next) => {
     if (ctx.permissionPresets.current(request.agent.session.events) !== PRESET || request.signal?.aborted) return next()
     const escalation = associatedEscalation(ctx, executions.getStore(), request)
     if (!escalation) return next()
+    const record = records.add(String(request.agent.session.id), {
+      id: `${Date.now()}-${String(request.callId)}`,
+      requestedAt: new Date().toISOString(),
+      toolName: request.toolName,
+      requestedSandbox: escalation.requested,
+      command: escalation.command,
+      justification: escalation.justification,
+      decision: 'reviewing',
+      rationale: '',
+      outcome: 'pending',
+    })
     const pending = review(ctx, request, escalation, config, lifetime.signal)
     active.add(pending)
     const verdict = await pending.finally(() => active.delete(pending))
-    if (verdict?.decision === 'allow') return 'allowed-once'
-    if (verdict?.decision === 'deny') return 'rejected'
+    record.decision = verdict?.decision ?? 'ask'
+    record.rationale = verdict?.rationale ?? (verdict ? '' : 'The AI reviewer did not return a valid decision.')
+    record.decidedAt = new Date().toISOString()
+    if (verdict?.decision === 'allow') {
+      record.outcome = 'allowed-once'
+      return 'allowed-once'
+    }
+    if (verdict?.decision === 'deny') {
+      record.outcome = 'rejected'
+      return 'rejected'
+    }
+    record.outcome = 'asked-user'
     return next()
   }, { prepend: true })
   ctx.effect(() => async () => {
     lifetime.abort(new Error('llm-approve-for-me disposed'))
     disposeApproval?.()
     disposeExecution?.()
+    disposeRoute?.()
     await Promise.allSettled([...active])
   }, 'llm-approve-for-me lifecycle')
 }
