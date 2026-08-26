@@ -111,6 +111,14 @@ describe('dsh-llm-approve-for-me', () => {
     assert.match(clientSource, /本会话暂无 AI 审批记录/)
   })
 
+  it('keeps the approval record styles compact with clear hierarchy', () => {
+    assert.match(clientSource, /font:11px\/16px var\(--dsw-font-mono\)/)
+    assert.match(clientSource, /dsh-ai-approval-command-hint/)
+    assert.match(clientSource, /dsh-ai-approval-badge::before/)
+    assert.match(clientSource, /requestedSandbox/)
+    assert.match(clientSource, /共 \$\{state\.records\.length\} 条记录/)
+  })
+
   it('runs a dedicated minimal-context reviewer subagent', () => {
     assert.match(source, /REVIEWER_PERSONA_MARK = 'sole reviewer for exactly one DeepSeek Harness sandbox-permission escalation'/)
     assert.match(source, /agent\/pre-step/)

@@ -46,16 +46,23 @@ window.__ModuleLoader__.load({
       style.textContent = `
         .${ICON_CLASS}{display:inline-flex;align-items:center;justify-content:center;flex:0 0 16px;width:16px;height:16px;color:inherit}.${ICON_CLASS}>svg{display:block;width:16px;height:16px}
         .dsh-ai-approval{position:relative}.dsh-ai-approval-trigger{min-height:28px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:transparent;border:0;border-radius:6px;display:inline-flex;align-items:center;gap:6px;padding:3px 7px;font-size:12px;line-height:18px}.dsh-ai-approval-trigger:hover,.dsh-ai-approval-trigger:focus-visible{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover)}
-        .dsh-ai-approval-panel{z-index:110;box-sizing:border-box;position:absolute;top:calc(100% + 6px);left:0;width:420px;max-width:min(420px,calc(100vw - 32px));max-height:min(520px,calc(100vh - 140px));overflow:auto;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-specific-menu);box-shadow:var(--dsw-shadow-lv3);padding:12px}.dsh-ai-approval-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;color:var(--dsw-alias-label-primary);font-size:13px;font-weight:600}.dsh-ai-approval-subtitle{color:var(--dsw-alias-label-tertiary);font-size:11px;font-weight:400}
-        .dsh-ai-approval-tab{display:inline-flex;align-items:center;gap:4px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:transparent;border:0;border-radius:6px;padding:3px 6px;font-size:12px}.dsh-ai-approval-tab:hover{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-ai-approval-tab-active{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}
-        .dsh-ai-approval-empty{color:var(--dsw-alias-label-tertiary);padding:20px 8px;text-align:center;font-size:12px}
-        .dsh-ai-approval-list{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}.dsh-ai-approval-row{border:1px solid var(--dsw-alias-border-l1);border-radius:9px;padding:9px;background:var(--dsw-alias-bg-base)}.dsh-ai-approval-rowhead{display:flex;align-items:center;gap:8px;margin-bottom:7px}.dsh-ai-approval-time{margin-left:auto;color:var(--dsw-alias-label-tertiary);font-size:11px;white-space:nowrap}
-        .dsh-ai-approval-badge{display:inline-flex;align-items:center;border-radius:999px;padding:1px 9px;font-size:11px;font-weight:600;line-height:18px;color:#fff}.dsh-ai-approval-badge-allow{background:var(--dsw-alias-success,#2e7d32)}.dsh-ai-approval-badge-deny{background:var(--dsw-alias-danger,#c0392b)}.dsh-ai-approval-badge-ask{background:var(--dsw-alias-warning,#b26a00)}.dsh-ai-approval-badge-reviewing{background:var(--dsw-alias-label-tertiary,#888)}
+        .dsh-ai-approval-panel{z-index:110;box-sizing:border-box;position:absolute;top:calc(100% + 6px);left:0;width:460px;max-width:min(460px,calc(100vw - 32px));max-height:min(560px,calc(100vh - 140px));overflow:auto;border:1px solid var(--dsw-alias-border-l2);border-radius:12px;background:var(--dsw-specific-menu);box-shadow:var(--dsw-shadow-lv3);padding:14px}.dsh-ai-approval-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-label-primary);font-size:13px;font-weight:600}.dsh-ai-approval-subtitle{color:var(--dsw-alias-label-tertiary);font-size:11px;font-weight:400}
+        .dsh-ai-approval-tab{display:inline-flex;align-items:center;gap:5px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:transparent;border:0;border-radius:6px;padding:4px 8px;font-size:12px;font-weight:500}.dsh-ai-approval-tab:hover{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover)}.dsh-ai-approval-tab-active{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-hover)}
+        .dsh-ai-approval-empty{color:var(--dsw-alias-label-tertiary);padding:28px 8px;text-align:center;font-size:12px}.dsh-ai-approval-empty-icon{display:flex;justify-content:center;opacity:.4;margin-bottom:6px}
+        .dsh-ai-approval-history{display:flex;flex-direction:column;gap:8px}.dsh-ai-approval-count{color:var(--dsw-alias-label-tertiary);font-size:10.5px;text-align:right}
+        .dsh-ai-approval-list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+        .dsh-ai-approval-row{border:1px solid var(--dsw-alias-border-l1);border-radius:10px;padding:10px 11px;background:var(--dsw-alias-bg-base);transition:border-color .12s ease,box-shadow .12s ease}.dsh-ai-approval-row:hover{border-color:var(--dsw-alias-border-l2);box-shadow:0 1px 4px rgb(0 0 0 / .05)}
+        .dsh-ai-approval-rowhead{display:flex;align-items:center;gap:7px;margin-bottom:8px}.dsh-ai-approval-time{margin-left:auto;color:var(--dsw-alias-label-tertiary);font-size:10.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+        .dsh-ai-approval-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:600;line-height:16px}
+        .dsh-ai-approval-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
+        .dsh-ai-approval-badge-allow{color:#1e7e45;background:rgb(30 126 69 / .12)}.dsh-ai-approval-badge-deny{color:#c0392b;background:rgb(192 57 43 / .12)}.dsh-ai-approval-badge-ask{color:#a26800;background:rgb(162 104 0 / .14)}.dsh-ai-approval-badge-reviewing{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover)}
         .dsh-ai-approval-outcome{color:var(--dsw-alias-label-secondary);font-size:11px}
-        .dsh-ai-approval-command{color:var(--dsw-alias-label-primary);font:12px/17px var(--dsw-font-mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:80px;overflow:auto}
-        .dsh-ai-approval-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}.dsh-ai-approval-tag{display:inline-flex;align-items:center;border:1px solid var(--dsw-alias-border-l2);border-radius:5px;padding:0 6px;color:var(--dsw-alias-label-tertiary);font-size:10.5px;line-height:17px}.dsh-ai-approval-tag-model{font-family:var(--dsw-font-mono)}
-        .dsh-ai-approval-reason{display:flex;gap:7px;margin-top:6px;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:17px;white-space:pre-wrap;overflow-wrap:anywhere}.dsh-ai-approval-kv{flex:0 0 auto;color:var(--dsw-alias-label-tertiary);font-weight:600}.dsh-ai-approval-toggle{border:0;background:transparent;color:var(--dsw-alias-label-primary);font-size:11px;padding:0 2px;cursor:pointer;text-decoration:underline}.dsh-ai-approval-note{color:var(--dsw-alias-label-tertiary)}
-        .dsh-ai-approval-form{display:flex;flex-direction:column;gap:9px}.dsh-ai-approval-field{display:flex;flex-direction:column;gap:4px}.dsh-ai-approval-label{color:var(--dsw-alias-label-secondary);font-size:11px;font-weight:500}.dsh-ai-approval-input{box-sizing:border-box;width:100%;border:1px solid var(--dsw-alias-border-l2);border-radius:7px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-size:12px;padding:5px 8px;outline:none}.dsh-ai-approval-input:focus{border-color:var(--dsw-alias-border-l3)}.dsh-ai-approval-check{display:flex;align-items:center;gap:7px;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;cursor:pointer}.dsh-ai-approval-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-ai-approval-save{border:0;border-radius:7px;background:var(--dsw-alias-interactive-accent,var(--dsw-alias-label-primary));color:var(--dsw-specific-menu,#fff);font-size:12px;font-weight:500;padding:5px 14px;cursor:pointer}.dsh-ai-approval-save:disabled{opacity:.55;cursor:default}.dsh-ai-approval-hint{color:var(--dsh-approval-hint,var(--dsw-alias-label-tertiary));font-size:11px;overflow-wrap:anywhere}.dsh-ai-approval-error{color:var(--dsw-alias-danger,#c0392b);font-size:11px}.dsh-ai-approval-saved{color:var(--dsw-alias-success,#2e7d32);font-size:11px}
+        .dsh-ai-approval-command{box-sizing:border-box;color:var(--dsw-alias-label-secondary);font:11px/16px var(--dsw-font-mono);white-space:pre-wrap;overflow-wrap:anywhere;max-height:84px;overflow:auto;background:var(--dsw-alias-bg-base);border:1px solid var(--dsw-alias-border-l1);border-radius:7px;padding:6px 8px}
+        .dsh-ai-approval-command-hint{display:inline-flex;align-items:center;gap:4px;color:var(--dsw-alias-label-tertiary);font-size:10.5px;margin-bottom:4px}
+        .dsh-ai-approval-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.dsh-ai-approval-tag{display:inline-flex;align-items:center;border-radius:5px;padding:1px 7px;color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-interactive-bg-hover);font-size:10.5px;line-height:17px}.dsh-ai-approval-tag-model{font-family:var(--dsw-font-mono)}
+        .dsh-ai-approval-reason{display:flex;gap:8px;margin-top:8px;padding-left:8px;border-left:2px solid var(--dsw-alias-border-l2);color:var(--dsw-alias-label-tertiary);font-size:11px;line-height:16px;white-space:pre-wrap;overflow-wrap:anywhere}.dsh-ai-approval-kv{flex:0 0 auto;color:var(--dsw-alias-label-tertiary);font-weight:600}.dsh-ai-approval-toggle{border:0;background:transparent;color:var(--dsw-alias-label-secondary);font-size:10.5px;padding:0 2px;cursor:pointer;text-decoration:underline}.dsh-ai-approval-note{color:var(--dsw-alias-label-tertiary)}
+        .dsh-ai-approval-ai{margin-top:6px;color:var(--dsw-alias-label-secondary)}
+        .dsh-ai-approval-form{display:flex;flex-direction:column;gap:10px}.dsh-ai-approval-field{display:flex;flex-direction:column;gap:4px}.dsh-ai-approval-label{color:var(--dsw-alias-label-secondary);font-size:11px;font-weight:500}.dsh-ai-approval-input{box-sizing:border-box;width:100%;border:1px solid var(--dsw-alias-border-l2);border-radius:7px;background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary);font-size:12px;padding:5px 8px;outline:none}.dsh-ai-approval-input:focus{border-color:var(--dsw-alias-border-l3)}.dsh-ai-approval-check{display:flex;align-items:center;gap:7px;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:16px;cursor:pointer}.dsh-ai-approval-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dsh-ai-approval-save{border:0;border-radius:7px;background:var(--dsw-alias-interactive-accent,var(--dsw-alias-label-primary));color:var(--dsw-specific-menu,#fff);font-size:12px;font-weight:500;padding:5px 14px;cursor:pointer}.dsh-ai-approval-save:disabled{opacity:.55;cursor:default}.dsh-ai-approval-hint{color:var(--dsh-approval-hint,var(--dsw-alias-label-tertiary));font-size:11px;overflow-wrap:anywhere}.dsh-ai-approval-error{color:var(--dsw-alias-danger,#c0392b);font-size:11px}.dsh-ai-approval-saved{color:var(--dsw-alias-success,#2e7d32);font-size:11px}
       `
       document.head.appendChild(style)
     }
@@ -88,8 +95,13 @@ window.__ModuleLoader__.load({
 
     function formatTime(value) {
       const date = new Date(value)
-      return Number.isNaN(date.getTime()) ? '' : date.toLocaleString()
+      if (Number.isNaN(date.getTime())) return ''
+      const pad = (n) => String(n).padStart(2, '0')
+      return `${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`
     }
+
+    // AI 结论行左侧的强调色：与徽章同色系，弱化的引用竖线。
+    const AI_ACCENTS = { allow: '#1e7e45', deny: '#c0392b', ask: '#a26800' }
 
     function ApprovalSettings() {
       const [state, setState] = React.useState({ loading: true, saving: false, saved: false, error: '', form: null, ranges: null, settingsFile: '' })
@@ -166,11 +178,13 @@ window.__ModuleLoader__.load({
       const [expanded, setExpanded] = React.useState(false)
       const longReason = record.justification.length > 90
       const reasonText = expanded || !longReason ? record.justification : `${record.justification.slice(0, 90)}…`
+      const accent = AI_ACCENTS[record.decision] || undefined
       return React.createElement('li', { className: 'dsh-ai-approval-row' },
         React.createElement('div', { className: 'dsh-ai-approval-rowhead' },
           verdictBadge(record),
           React.createElement('span', { className: 'dsh-ai-approval-outcome' }, OUTCOME_LABELS[record.outcome] ?? record.outcome),
-          React.createElement('span', { className: 'dsh-ai-approval-time' }, formatTime(record.requestedAt))),
+          React.createElement('span', { className: 'dsh-ai-approval-time', title: String(record.requestedAt) }, formatTime(record.requestedAt))),
+        React.createElement('div', { className: 'dsh-ai-approval-command-hint' }, `请求目标 · ${record.requestedSandbox}`),
         React.createElement('div', { className: 'dsh-ai-approval-command' }, record.command),
         React.createElement('div', { className: 'dsh-ai-approval-tags' },
           React.createElement('span', { className: 'dsh-ai-approval-tag' }, record.toolName),
@@ -180,7 +194,7 @@ window.__ModuleLoader__.load({
           React.createElement('span', { className: 'dsh-ai-approval-kv' }, '理由'),
           React.createElement('span', null, reasonText),
           longReason && React.createElement('button', { type: 'button', className: 'dsh-ai-approval-toggle', onClick: () => setExpanded((value) => !value) }, expanded ? '收起' : '展开')),
-        record.rationale && React.createElement('div', { className: `dsh-ai-approval-reason${record.decision === 'ask' && !record.rationale.startsWith('The AI reviewer') && !record.rationale.includes('：') ? ' dsh-ai-approval-note' : ''}` },
+        record.rationale && React.createElement('div', { className: `dsh-ai-approval-reason dsh-ai-approval-ai${record.decision === 'ask' && !record.rationale.startsWith('The AI reviewer') && !record.rationale.includes('：') ? ' dsh-ai-approval-note' : ''}`, style: accent ? { borderLeftColor: accent } : undefined },
           React.createElement('span', { className: 'dsh-ai-approval-kv' }, 'AI'),
           React.createElement('span', null, record.rationale)))
     }
@@ -202,8 +216,12 @@ window.__ModuleLoader__.load({
 
       return state.loading ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, '加载中…') :
         state.error ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, `加载失败：${state.error}`) :
-          state.records.length === 0 ? React.createElement('div', { className: 'dsh-ai-approval-empty' }, '本会话暂无 AI 审批记录。') :
-            React.createElement('ol', { className: 'dsh-ai-approval-list' }, state.records.map((record) => React.createElement(ApprovalRecordRow, { record, key: record.id })))
+          state.records.length === 0 ? React.createElement('div', { className: 'dsh-ai-approval-empty' },
+            React.createElement('div', { className: 'dsh-ai-approval-empty-icon', 'aria-hidden': 'true' }, terminalIcon(18)),
+            React.createElement('div', null, '本会话暂无 AI 审批记录。')) :
+            React.createElement('div', { className: 'dsh-ai-approval-history' },
+              React.createElement('div', { className: 'dsh-ai-approval-count' }, React.createElement('span', null, `共 ${state.records.length} 条记录`)),
+              React.createElement('ol', { className: 'dsh-ai-approval-list' }, state.records.map((record) => React.createElement(ApprovalRecordRow, { record, key: record.id }))))
     }
 
     function ApprovalPanel({ sessionId }) {
