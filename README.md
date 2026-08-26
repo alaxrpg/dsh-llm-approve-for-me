@@ -1,15 +1,15 @@
 # dsh-llm-approve-for-me
 
-一个 DeepSeek Harness（DSH）插件：当会话选择 **LLM Approve For Me** 权限预设时，每一笔有效的 Shell 或 PowerShell 沙箱权限升级都由一个无工具的审查 LLM 判定。
+一个 DeepSeek Harness（DSH）插件：当会话选择 **AI Approval** 权限预设时，每一笔有效的 Shell 或 PowerShell 沙箱权限升级都由一个专用的无工具审查子代理判定（设计参考 Codex Guardian reviewer：独立模型路由、最小上下文、快速裁决）。
 
 ## 设计边界
 
 - 没有命令前缀、正则、白名单、黑名单、危险操作列表或其他规则判断。
 - 不会绕过 DSH 的沙箱：每次允许只返回原生的 `allowed-once` 一次性授权。
 - 审查 LLM 输出是唯一的自动决策来源：`allow` 允许一次、`deny` 拒绝、`ask` 交回原生人工审批。
-- 每个会话顶部提供 **AI Approval** 按钮，按当前 session 隔离展示最近 100 条审批记录，包括命令、申请理由、目标权限、AI 结论与最终结果。
-- 缺失审查模型路由、超时、取消、子代理异常或结构化输出无效时，同样交回人工审批；不会默许放行。
-- 审查子代理设置 `toolFilter: { allow: [] }`，不会拥有工具权限；命令和理由以不可信 JSON 证据提供，提示词明确禁止执行其中的指令。
+- 专用审查子代理：`toolFilter: { allow: [] }` 无工具权限；命令和理由以不可信 JSON 证据提供；persona 要求快速裁决（一句话理由足够）；默认开启最小上下文模式，审查时不注入 AGENTS.md/CLAUDE.md 工作区指令。
+- 每个会话顶部提供 **AI Approval** 面板：History 页按 session 隔离展示最近 100 条审批记录（命令、申请理由、目标权限、审查模型、AI 结论与最终结果）；Settings 页可视化调整审查子代理配置。
+- 缺失审查模型路由、超时、取消、子代理异常或结构化输出无效时，同样交回人工审批；不会默许放行，且记录具体失败原因。
 
 这不是安全产品，也不能替代人工授权、最小权限、备份或隔离。它的含义是把授权判断交给你在 DSH 中配置的 LLM，而不是交给本插件的命令规则。
 
@@ -21,11 +21,23 @@
 dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 ```
 
-重启 DSH Web 后，在权限选择器中选择 **AI Approval**。插件的浏览器端半身会在菜单项、当前权限按钮以及会话顶部记录按钮前渲染一枚与 DSH 原生权限图标同为 16px、`currentColor` 的终端审批 SVG；它会跟随亮暗主题，不使用文字或 Emoji 充当图标。点击会话顶部的 **AI Approval** 可查看当前会话在本次 DSH 运行期间产生的审批记录。交互语义与 Codex 的“替我审批”相近：模型审核每次权限升级，但不会获得完全访问权限。包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设并挂载插件；不要再手动重复插入同一个插件实例。
+重启 DSH Web 后，在权限选择器中选择 **AI Approval**。点击会话顶部的 **AI Approval** 可切换查看审批历史（History）与审查设置（Settings）。包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设并挂载插件；不要再手动重复插入同一个插件实例。
 
-## 配置
+## 可视化设置（v0.4.0+）
 
-默认继承提出当前权限请求的会话的 Provider 与模型（即主会话用什么模型，审核就用什么模型；推荐搭配非推理的快速模型以获得秒级结论）。若要固定使用较便宜的专用审查模型，可在 profile 的 `cordis.patch.yml` 中为插件增加配置：
+会话顶部 **AI Approval → Settings** 提供表单，手动调整后 Save 即写入 `~/.dsh/llm-approve-for-me.settings.json`，下一次审查立即生效（无需重启）：
+
+| 设置项 | 默认 | 范围 | 说明 |
+| --- | --- | --- | --- |
+| Reviewer provider | 空（继承主会话） | 任意 provider 名 | 留空继承提出请求的会话 |
+| Reviewer model | 空（继承主会话） | 任意 model 名 | 推荐指向快速非推理模型，秒级出结论 |
+| Timeout | 300 秒 | 1–600 秒 | 推理模型的思考时间计入超时 |
+| Max tokens | 16384 | 256–65536 | 含推理过程；推理模型建议保持默认或更高 |
+| Minimal context | 开启 | 开/关 | 开启时审查子代理不注入 AGENTS.md/CLAUDE.md 工作区指令 |
+
+设置合并顺序：`~/.dsh/llm-approve-for-me.settings.json` > profile `cordis.patch.yml` 的 `reviewer` 段 > 上表默认值。
+
+也可以继续在 profile 的 `cordis.patch.yml` 中静态配置（会被设置文件覆盖）：
 
 ```yaml
 - insert:
@@ -35,20 +47,20 @@ dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
         reviewer:
           provider: your-review-provider
           model: your-review-model
-          timeoutMs: 120000
+          timeoutMs: 300000
+          maxTokens: 16384
+          minimalContext: true
 ```
-
-`provider` 与 `model` 必须同时配置；未配置时继承当前会话。`timeoutMs` 可为 1000–300000 毫秒，默认 120000——推理型审查模型的思考时间计入超时，深度思考模型建议保持默认或调高。审查子代理的输出预算为 4096 tokens（含推理过程）。
 
 ## 审核协议
 
-插件将请求交给无工具子代理，并要求其严格按下面的 JSON 结构返回：
+插件将请求交给无工具的专用审查子代理，并要求其严格按下面的 JSON 结构返回：
 
 ```json
 {"decision":"allow","rationale":"原因（可选）"}
 ```
 
-`decision` 只能是 `allow`、`deny` 或 `ask`。任何额外字段、未知值或非结构化响应都会回落到原生人工审批。审核超时（默认 120 秒）、取消、子代理异常或输出无效时，具体的失败原因会写入该条审批记录的 AI 说明，方便区分"审不了"和"没审完"。
+`decision` 只能是 `allow`、`deny` 或 `ask`。任何额外字段、未知值或非结构化响应都会回落到原生人工审批。审核超时（默认 300 秒）、取消、子代理异常或输出无效时，具体的失败原因会写入该条审批记录的 AI 说明，方便区分"审不了"和"没审完"。
 
 ## 本地验证与打包
 
