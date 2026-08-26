@@ -7,6 +7,9 @@ window.__ModuleLoader__.load({
 
     const React = require('react')
     const LABEL = 'AI Approval'
+    const LEGACY_LABEL = 'LLM 替我审批'
+    const LEGACY_DESCRIPTION = '由审查模型自动决定每次权限升级；仍受沙箱限制，无法裁决时询问你。'
+    const DESCRIPTION = 'Let an AI reviewer decide each permission escalation; ask you when it cannot decide.'
     const RECORDS_ROUTE = '/llm-approve-for-me/records'
     const ICON_CLASS = 'dsh-llm-approval-icon'
     const STYLE_ID = 'dsh-llm-approval-style'
@@ -44,10 +47,27 @@ window.__ModuleLoader__.load({
 
     function decoratePermissionControls() {
       for (const item of document.querySelectorAll('[role="menuitem"]')) {
+        replaceLegacyCopy(item)
         if (normalizedText(item) === LABEL && !item.querySelector(`:scope > .${ICON_CLASS}`)) item.insertBefore(createPermissionIcon(), item.firstChild)
       }
       for (const button of document.querySelectorAll('button[aria-label]')) {
-        if ((button.getAttribute('aria-label') || '').includes(LABEL) && !button.querySelector(`:scope > .${ICON_CLASS}`)) button.insertBefore(createPermissionIcon(), button.firstChild)
+        replaceLegacyCopy(button)
+        if (!button.classList.contains('dsh-ai-approval-trigger') && (button.getAttribute('aria-label') || '').includes(LABEL) && !button.querySelector(`:scope > .${ICON_CLASS}`)) button.insertBefore(createPermissionIcon(), button.firstChild)
+      }
+    }
+
+    function replaceLegacyCopy(element) {
+      for (const attribute of ['aria-label', 'aria-description', 'title']) {
+        const value = element.getAttribute(attribute)
+        if (value?.includes(LEGACY_LABEL) || value?.includes(LEGACY_DESCRIPTION)) {
+          element.setAttribute(attribute, value.replaceAll(LEGACY_LABEL, LABEL).replaceAll(LEGACY_DESCRIPTION, DESCRIPTION))
+        }
+      }
+      const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
+      while (walker.nextNode()) {
+        const node = walker.currentNode
+        if (node.nodeValue?.includes(LEGACY_LABEL)) node.nodeValue = node.nodeValue.replaceAll(LEGACY_LABEL, LABEL)
+        if (node.nodeValue?.includes(LEGACY_DESCRIPTION)) node.nodeValue = node.nodeValue.replaceAll(LEGACY_DESCRIPTION, DESCRIPTION)
       }
     }
 

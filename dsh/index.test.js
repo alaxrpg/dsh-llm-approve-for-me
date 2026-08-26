@@ -26,6 +26,9 @@ describe('dsh-llm-approve-for-me', () => {
     assert.doesNotMatch(clientSource, /✦/)
     assert.match(clientSource, /conversation\.session\.header\.actions/)
     assert.match(clientSource, /Current session approval history/)
+    assert.match(clientSource, /replaceLegacyCopy/)
+    assert.match(clientSource, /LEGACY_DESCRIPTION/)
+    assert.match(clientSource, /!button\.classList\.contains\('dsh-ai-approval-trigger'\)/)
   })
 
   it('keeps bounded approval records isolated by session', () => {
