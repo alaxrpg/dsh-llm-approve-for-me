@@ -127,7 +127,8 @@ describe('dsh-llm-approve-for-me', () => {
   })
 
   it('keeps the approval record styles compact with clear hierarchy', () => {
-    assert.match(clientSource, /font:11px\/16px var\(--dsw-font-mono\)/)
+    assert.match(clientSource, /font:11px\/16px var\(--dsw-font-mono,ui-monospace/)
+    assert.doesNotMatch(clientSource, /var\(--dsw-font-mono\)/)
     assert.match(clientSource, /dsh-ai-approval-command-hint/)
     assert.match(clientSource, /dsh-ai-approval-badge::before/)
     assert.match(clientSource, /requestedSandbox/)

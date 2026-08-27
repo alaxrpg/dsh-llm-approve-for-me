@@ -1,6 +1,6 @@
 {
   "name": "dsh-llm-approve-for-me",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Sessionless LLM sandbox approval reviewer for DeepSeek Harness.",
   "type": "module",
   "main": "./dsh/index.js",
