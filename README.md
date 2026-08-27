@@ -62,7 +62,7 @@ dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 {"decision":"allow","rationale":"原因（可选）"}
 ```
 
-`decision` 只能是 `allow`、`deny` 或 `ask`。任何额外字段、未知值、Markdown code fence 或其他非严格 JSON 响应都会回落到原生人工审批。审核超时（默认 300 秒）、取消、模型调用异常或输出无效时，具体的失败原因会写入该条审批记录的 AI 说明，方便区分"审不了"和"没审完"。
+`decision` 只能是 `allow`、`deny` 或 `ask`；`rationale` 固定要求审查模型用**简体中文**输出一句话理由。任何额外字段、未知值、Markdown code fence 或其他非严格 JSON 响应都会回落到原生人工审批。审核超时（默认 300 秒）、取消、模型调用异常或输出无效时，具体的失败原因（同样为中文）会写入该条审批记录的 AI 说明，方便区分"审不了"和"没审完"。
 
 ## 本地验证与打包
 

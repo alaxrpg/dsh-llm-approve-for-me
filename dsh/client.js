@@ -102,6 +102,11 @@ window.__ModuleLoader__.load({
 
     // AI 结论行左侧的强调色：与徽章同色系，弱化的引用竖线。
     const AI_ACCENTS = { allow: '#1e7e45', deny: '#c0392b', ask: '#a26800' }
+    // 审查失败（非真正决策）时整行使用弱化样式：按内置失败文案前缀识别（中文，兼容历史英文记录）。
+    function isReviewerFailure(record) {
+      if (record.decision !== 'ask' || !record.rationale) return false
+      return /^(AI 审查(超时|已|失败|在|尝试|未)|缺少审查模型路由|The AI reviewer)/.test(record.rationale)
+    }
 
     function ApprovalSettings() {
       const [state, setState] = React.useState({ loading: true, saving: false, saved: false, error: '', form: null, ranges: null, settingsFile: '' })
@@ -135,8 +140,8 @@ window.__ModuleLoader__.load({
           })
           .catch((error) => setState((current) => ({ ...current, saving: false, error: String(error.message || error) })))
       }
-      if (state.loading) return React.createElement('div', { className: 'dsh-ai-approval-empty' }, 'Loading…')
-      if (!state.form) return React.createElement('div', { className: 'dsh-ai-approval-empty' }, `Unable to load: ${state.error}`)
+      if (state.loading) return React.createElement('div', { className: 'dsh-ai-approval-empty' }, '加载中…')
+      if (!state.form) return React.createElement('div', { className: 'dsh-ai-approval-empty' }, `无法加载：${state.error}`)
       const form = state.form
       const timeoutBounds = state.ranges ? [Math.ceil(state.ranges.timeoutMs[0] / 1000), Math.floor(state.ranges.timeoutMs[1] / 1000)] : [1, 600]
       const tokenBounds = state.ranges?.maxTokens ?? [256, 65536]
@@ -191,7 +196,7 @@ window.__ModuleLoader__.load({
           React.createElement('span', { className: 'dsh-ai-approval-kv' }, '理由'),
           React.createElement('span', null, reasonText),
           longReason && React.createElement('button', { type: 'button', className: 'dsh-ai-approval-toggle', onClick: () => setExpanded((value) => !value) }, expanded ? '收起' : '展开')),
-        record.rationale && React.createElement('div', { className: `dsh-ai-approval-reason dsh-ai-approval-ai${record.decision === 'ask' && !record.rationale.startsWith('The AI reviewer') && !record.rationale.includes('：') ? ' dsh-ai-approval-note' : ''}`, style: accent ? { borderLeftColor: accent } : undefined },
+        record.rationale && React.createElement('div', { className: `dsh-ai-approval-reason dsh-ai-approval-ai${isReviewerFailure(record) ? ' dsh-ai-approval-note' : ''}`, style: accent ? { borderLeftColor: accent } : undefined },
           React.createElement('span', { className: 'dsh-ai-approval-kv' }, 'AI'),
           React.createElement('span', null, record.rationale)))
     }
