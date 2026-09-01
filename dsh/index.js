@@ -277,6 +277,27 @@ function associatedEscalation(ctx, execution, request) {
   return widening ? { target, justification, requested } : undefined
 }
 
+/**
+ * 读取当前会话的权限预设。DSH 0.1.2 将 current() 的参数改为 Session，
+ * 旧版则接收 session.events；优先使用新版接口，并保留旧版回退以兼容已安装的 profile。
+ */
+export function currentPreset(ctx, session) {
+  const current = ctx.permissionPresets?.current
+  if (typeof current !== 'function') return undefined
+  try {
+    const value = current.call(ctx.permissionPresets, session)
+    if (value === PRESET) return value
+  } catch {
+    // 旧版服务把 Session 当作事件流时会在这里失败，继续尝试兼容参数。
+  }
+  if (!session?.events) return undefined
+  try {
+    return current.call(ctx.permissionPresets, session.events)
+  } catch {
+    return undefined
+  }
+}
+
 function describeError(error) {
   const text = String(error?.message ?? error ?? '').replace(/\s+/g, ' ').trim()
   return text ? text.slice(0, 300) : 'unknown error'
@@ -284,7 +305,7 @@ function describeError(error) {
 
 async function review(ctx, request, escalation, state, lifetime) {
   const route = reviewerConfig(state.yaml, request.agent, state.settings)
-  if (!route.provider || !route.model) return { error: '缺少审查模型路由：请在 AI Approval 设置中配置 provider 与 model，或从已配置模型的会话发起。' }
+  if (!route.provider || !route.model) return { error: '缺少审查模型路由：请在“帮我批准”设置中配置 provider 与 model，或从已配置模型的会话发起。' }
   const timeout = new AbortController()
   const timer = setTimeout(() => timeout.abort(new Error('LLM approval review timed out')), route.timeoutMs)
   const signal = AbortSignal.any([timeout.signal, lifetime, ...(request.signal ? [request.signal] : [])])
@@ -305,7 +326,7 @@ async function review(ctx, request, escalation, state, lifetime) {
       sessionId: request.agent.session.id,
       signal,
     }))
-    if (timeout.signal.aborted) return { error: `AI 审查超时（${route.timeoutMs}ms）：请在 AI Approval 设置中调高超时，或将审查模型指向更快的模型。` }
+    if (timeout.signal.aborted) return { error: `AI 审查超时（${route.timeoutMs}ms）：请在“帮我批准”设置中调高超时，或将审查模型指向更快的模型。` }
     if (lifetime.aborted) return { error: 'AI 审查已因插件被卸载而取消。' }
     if (request.signal?.aborted) return { error: 'AI 审查已随审批请求一起取消。' }
     if (response.finish?.kind === 'error' || response.finish?.kind === 'aborted') {
@@ -316,7 +337,7 @@ async function review(ctx, request, escalation, state, lifetime) {
     const verdict = parseReviewerText(response.text)
     return verdict ? { verdict } : { error: 'AI 审查未返回有效的决策。' }
   } catch (error) {
-    if (timeout.signal.aborted) return { error: `AI 审查超时（${route.timeoutMs}ms）：请在 AI Approval 设置中调高超时，或将审查模型指向更快的模型。` }
+    if (timeout.signal.aborted) return { error: `AI 审查超时（${route.timeoutMs}ms）：请在“帮我批准”设置中调高超时，或将审查模型指向更快的模型。` }
     if (lifetime.aborted) return { error: 'AI 审查已因插件被卸载而取消。' }
     if (request.signal?.aborted) return { error: 'AI 审查已随审批请求一起取消。' }
     return { error: `AI 审查失败：${describeError(error)}` }
@@ -336,7 +357,7 @@ export function apply(ctx, config = {}) {
   const disposeSettings = registerSettingsRoute(ctx, state)
   const disposeExecution = ctx.on('tools/execute', (execution, next) => executions.run(execution, next), { prepend: true })
   const disposeApproval = ctx.on('approval/request', async (request, next) => {
-    if (ctx.permissionPresets.current(request.agent.session.events) !== PRESET || request.signal?.aborted) return next()
+    if (currentPreset(ctx, request.agent.session) !== PRESET || request.signal?.aborted) return next()
     const escalation = associatedEscalation(ctx, executions.getStore(), request)
     if (!escalation) return next()
     const route = reviewerConfig(state.yaml, request.agent, state.settings)

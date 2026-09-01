@@ -13,8 +13,8 @@
       llm-approve-for-me:
         sandbox: workspace-write
         approval: ask
-        name: AI Approval
-        description: Let an AI reviewer decide each permission escalation; ask you when it cannot decide.
+        name: 帮我批准
+        description: 让 AI 审查员决定每次权限升级；无法裁决时询问你。
       danger-full-access:
         sandbox: danger-full-access
         approval: never

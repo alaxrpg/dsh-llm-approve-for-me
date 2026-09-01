@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
-import { buildReviewerPrompt, collectReviewerResponse, createApprovalRecords, inject, name, parseReviewerText, parseVerdict, sanitizeSettings } from './index.js'
+import { buildReviewerPrompt, collectReviewerResponse, createApprovalRecords, currentPreset, inject, name, parseReviewerText, parseVerdict, sanitizeSettings } from './index.js'
 
 const source = readFileSync(new URL('./index.js', import.meta.url), 'utf8')
 const clientSource = readFileSync(new URL('./client.js', import.meta.url), 'utf8')
@@ -14,11 +14,24 @@ describe('dsh-llm-approve-for-me', () => {
     assert.deepEqual(inject, ['approval', 'permissionPresets', 'sandboxPolicy', 'llm', 'tools', 'webServer'])
   })
 
-  it('exposes an English approval preset with a real client-side SVG icon', () => {
-    assert.match(bundlePatch, /name: AI Approval/)
+  it('reads the active permission preset with the new Session API and keeps the legacy fallback', () => {
+    const session = { events: { legacy: true } }
+    let received
+    assert.equal(currentPreset({ permissionPresets: { current(value) { received = value; return 'llm-approve-for-me' } } }, session), 'llm-approve-for-me')
+    assert.equal(received, session)
+
+    const legacy = { permissionPresets: { current(value) {
+      if (value === session) throw new TypeError('expected session events')
+      return value === session.events ? 'llm-approve-for-me' : 'custom'
+    } } }
+    assert.equal(currentPreset(legacy, session), 'llm-approve-for-me')
+  })
+
+  it('exposes the Chinese approval preset with a real client-side SVG icon', () => {
+    assert.match(bundlePatch, /name: 帮我批准/)
     assert.match(bundlePatch, /defaultPreset: llm-approve-for-me/)
     assert.doesNotMatch(bundlePatch, /✦/)
-    assert.match(bundlePatch, /ask you when it cannot decide/)
+    assert.match(bundlePatch, /无法裁决时询问你/)
     assert.equal(pkg.exports['./client'], './dsh/client.js')
     assert.deepEqual(pkg.dsh.client, { platform: 'web' })
     assert.match(clientSource, /dsh-llm-approval-icon/)
@@ -30,6 +43,8 @@ describe('dsh-llm-approve-for-me', () => {
     assert.match(clientSource, /审查模型 Provider（留空 = 跟随主会话）/)
     assert.match(clientSource, /replaceLegacyCopy/)
     assert.match(clientSource, /LEGACY_DESCRIPTION/)
+    assert.match(clientSource, /const LABEL = '帮我批准'/)
+    assert.match(clientSource, /label: LABEL/)
     assert.match(clientSource, /!button\.classList\.contains\('dsh-ai-approval-trigger'\)/)
   })
 

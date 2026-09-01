@@ -1,6 +1,6 @@
 # dsh-llm-approve-for-me
 
-一个 DeepSeek Harness（DSH）插件：当会话选择 **AI Approval** 权限预设时，每一笔有效的沙箱权限升级（Shell/PowerShell 命令、`write`/`edit` 文件写入等所有带 `sandbox_permissions` 的工具调用）都由插件内置的专用无工具审查角色判定（独立模型路由、无会话单次调用、快速裁决）。
+一个 DeepSeek Harness（DSH）插件：当会话选择 **帮我批准** 权限预设时，每一笔有效的沙箱权限升级（Shell/PowerShell 命令、`write`/`edit` 文件写入等所有带 `sandbox_permissions` 的工具调用）都由插件内置的专用无工具审查角色判定（独立模型路由、无会话单次调用、快速裁决）。
 
 ## 设计边界
 
@@ -10,7 +10,7 @@
 - 不会绕过 DSH 的沙箱：每次允许只返回原生的 `allowed-once` 一次性授权。
 - 审查 LLM 输出是唯一的自动决策来源：`allow` 允许一次、`deny` 拒绝、`ask` 交回原生人工审批。
 - 覆盖面：`bash`/`pwsh` 传完整命令文本；`write`/`edit` 传文件路径 + 变更摘要（old/new 或 content，截断至 2000 字符防大文件刷屏）；其他带升级参数的工具从参数里尽力提取可审查目标。无法提取审查目标的请求交回人工。
-- 每个会话顶部提供 **AI Approval** 面板：History 页按 session 隔离展示最近 100 条审批记录（请求目标、申请理由、目标权限、审查模型、AI 结论与最终结果）；Settings 页可视化调整审查模型配置。
+- 每个会话顶部提供 **帮我批准** 面板：History 页按 session 隔离展示最近 100 条审批记录（请求目标、申请理由、目标权限、审查模型、AI 结论与最终结果）；Settings 页可视化调整审查模型配置。
 - 缺失审查模型路由、超时、取消、模型调用异常或 JSON 输出无效时，同样交回人工审批；不会默许放行，且记录具体失败原因。
 
 这不是安全产品，也不能替代人工授权、最小权限、备份或隔离。它的含义是把授权判断交给你在 DSH 中配置的 LLM，而不是交给本插件的命令规则。
@@ -23,11 +23,11 @@
 dsh plugin --profile web add github:alaxrpg/dsh-llm-approve-for-me
 ```
 
-重启 DSH Web 后，包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设、挂载插件，并把 **AI Approval** 设为新会话的默认预设（你仍可在设置页显式覆盖为其他预设；已存在的会话保留各自当前的预设）。点击会话顶部的 **AI Approval** 可切换查看审批历史（History）与审查设置（Settings）；不要再手动重复插入同一个插件实例。
+重启 DSH Web 后，包内的 [`dsh/cordis.patch.yml`](dsh/cordis.patch.yml) 会添加该权限预设、挂载插件，并把 **帮我批准** 设为新会话的默认预设（你仍可在设置页显式覆盖为其他预设；已存在的会话保留各自当前的预设）。点击会话顶部的 **帮我批准** 可切换查看审批历史（History）与审查设置（Settings）；不要再手动重复插入同一个插件实例。
 
 ## 可视化设置（v0.4.0+）
 
-会话顶部 **AI Approval → Settings** 提供表单，手动调整后 Save 即写入 `~/.dsh/llm-approve-for-me.settings.json`，下一次审查立即生效（无需重启）：
+会话顶部 **帮我批准 → Settings** 提供表单，手动调整后 Save 即写入 `~/.dsh/llm-approve-for-me.settings.json`，下一次审查立即生效（无需重启）：
 
 | 设置项 | 默认 | 范围 | 说明 |
 | --- | --- | --- | --- |

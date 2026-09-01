@@ -6,10 +6,12 @@ window.__ModuleLoader__.load({
     Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' })
 
     const React = require('react')
-    const LABEL = 'AI Approval'
+    const LABEL = '帮我批准'
     const LEGACY_LABEL = 'LLM 替我审批'
     const LEGACY_DESCRIPTION = '由审查模型自动决定每次权限升级；仍受沙箱限制，无法裁决时询问你。'
-    const DESCRIPTION = 'Let an AI reviewer decide each permission escalation; ask you when it cannot decide.'
+    const PREVIOUS_LABEL = 'AI Approval'
+    const PREVIOUS_DESCRIPTION = 'Let an AI reviewer decide each permission escalation; ask you when it cannot decide.'
+    const DESCRIPTION = '让 AI 审查员决定每次权限升级；无法裁决时询问你。'
     const RECORDS_ROUTE = '/llm-approve-for-me/records'
     const SETTINGS_ROUTE = '/llm-approve-for-me/settings'
     const ICON_CLASS = 'dsh-llm-approval-icon'
@@ -81,8 +83,8 @@ window.__ModuleLoader__.load({
     function replaceLegacyCopy(element) {
       for (const attribute of ['aria-label', 'aria-description', 'title']) {
         const value = element.getAttribute(attribute)
-        if (value?.includes(LEGACY_LABEL) || value?.includes(LEGACY_DESCRIPTION)) {
-          element.setAttribute(attribute, value.replaceAll(LEGACY_LABEL, LABEL).replaceAll(LEGACY_DESCRIPTION, DESCRIPTION))
+        if (value?.includes(LEGACY_LABEL) || value?.includes(LEGACY_DESCRIPTION) || value?.includes(PREVIOUS_LABEL) || value?.includes(PREVIOUS_DESCRIPTION)) {
+          element.setAttribute(attribute, value.replaceAll(LEGACY_LABEL, LABEL).replaceAll(LEGACY_DESCRIPTION, DESCRIPTION).replaceAll(PREVIOUS_LABEL, LABEL).replaceAll(PREVIOUS_DESCRIPTION, DESCRIPTION))
         }
       }
       const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT)
@@ -90,6 +92,8 @@ window.__ModuleLoader__.load({
         const node = walker.currentNode
         if (node.nodeValue?.includes(LEGACY_LABEL)) node.nodeValue = node.nodeValue.replaceAll(LEGACY_LABEL, LABEL)
         if (node.nodeValue?.includes(LEGACY_DESCRIPTION)) node.nodeValue = node.nodeValue.replaceAll(LEGACY_DESCRIPTION, DESCRIPTION)
+        if (node.nodeValue?.includes(PREVIOUS_LABEL)) node.nodeValue = node.nodeValue.replaceAll(PREVIOUS_LABEL, LABEL)
+        if (node.nodeValue?.includes(PREVIOUS_DESCRIPTION)) node.nodeValue = node.nodeValue.replaceAll(PREVIOUS_DESCRIPTION, DESCRIPTION)
       }
     }
 
@@ -238,8 +242,8 @@ window.__ModuleLoader__.load({
       }, [open])
 
       return React.createElement('div', { className: 'dsh-ai-approval', ref: root },
-        React.createElement('button', { type: 'button', className: 'dsh-ai-approval-trigger', 'aria-label': 'AI Approval history', 'aria-expanded': open, onClick: () => setOpen((value) => !value) }, terminalIcon(14), React.createElement('span', null, LABEL)),
-        open && React.createElement('section', { className: 'dsh-ai-approval-panel', 'aria-label': 'Current session approval history' },
+        React.createElement('button', { type: 'button', className: 'dsh-ai-approval-trigger', 'aria-label': `${LABEL}审批记录`, 'aria-expanded': open, onClick: () => setOpen((value) => !value) }, terminalIcon(14), React.createElement('span', null, LABEL)),
+        open && React.createElement('section', { className: 'dsh-ai-approval-panel', 'aria-label': '当前会话审批记录' },
           React.createElement('div', { className: 'dsh-ai-approval-heading' },
             React.createElement('span', { className: `dsh-ai-approval-tab${view === 'history' ? ' dsh-ai-approval-tab-active' : ''}`, role: 'button', tabIndex: 0, onClick: () => setView('history') }, '审批记录'),
             React.createElement('span', { className: `dsh-ai-approval-tab${view === 'settings' ? ' dsh-ai-approval-tab-active' : ''}`, role: 'button', tabIndex: 0, onClick: () => setView('settings') }, gearIcon(13), ' 审查设置')),
@@ -249,7 +253,7 @@ window.__ModuleLoader__.load({
     const inject = ['slots']
     function apply(ctx) {
       ensureStyle()
-      ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({ name: 'conversation.session.header.actions', id: 'llm-approve-for-me-history', order: 30, label: 'AI Approval' }, ApprovalPanel))
+      ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({ name: 'conversation.session.header.actions', id: 'llm-approve-for-me-history', order: 30, label: LABEL }, ApprovalPanel))
       let scheduled = false
       const refresh = () => {
         if (scheduled) return
